@@ -1,0 +1,12 @@
+node_modules
+backend/node_modules
+frontend/node_modules
+backend/rdv.db
+frontend/dist
+.git
+.gitignore
+.claude
+*.log
+README-DEPLOY.md
+deploy.sh
+rdv_data.json

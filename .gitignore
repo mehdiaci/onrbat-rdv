@@ -1,0 +1,27 @@
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Claude Code (configuration locale)
+.claude/
+
+# Base de données locale (ne jamais committer)
+backend/rdv.db
+backend/rdv.db-shm
+backend/rdv.db-wal
+rdv_data.json
+
+# Build frontend
+frontend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local

@@ -1,0 +1,16 @@
+{
+  "name": "onrbat-rdv",
+  "version": "1.0.0",
+  "description": "Application de gestion de rendez-vous commerciaux ONRBAT",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently --kill-others-on-fail -n \"BACKEND,FRONTEND\" -c \"cyan,magenta\" \"node backend/server.js\" \"cd frontend && npm run dev\"",
+    "dev:backend": "node backend/server.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
