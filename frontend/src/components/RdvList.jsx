@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Search, Download, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Filter } from 'lucide-react'
+import { Plus, Search, Download, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Filter, Camera } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import RdvModal from './RdvModal'
+import ImportScreenshotModal from './ImportScreenshotModal'
 import { API_BASE } from '../config'
 
 const PAGE_SIZE = 20
@@ -77,8 +78,10 @@ export default function RdvList() {
   const [filters, setFilters] = useState({ statut: '', travaux: '', departement: '', date: '' })
   const [departements, setDepartements] = useState([])
   const [modal, setModal] = useState({ open: false, rdv: null })
+  const [importScreenshot, setImportScreenshot] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
   const [error, setError] = useState('')
+  const [importSuccess, setImportSuccess] = useState('')
 
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
@@ -245,6 +248,17 @@ export default function RdvList() {
             <FileText size={15} /> PDF
           </button>
           <button
+            onClick={() => setImportScreenshot(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '9px 18px', borderRadius: '8px', border: 'none',
+              background: '#8B5CF6', color: '#fff',
+              fontSize: '14px', fontWeight: 600, cursor: 'pointer'
+            }}
+          >
+            <Camera size={16} /> Importer WhatsApp
+          </button>
+          <button
             onClick={() => setModal({ open: true, rdv: null })}
             style={{
               display: 'flex', alignItems: 'center', gap: '8px',
@@ -306,6 +320,13 @@ export default function RdvList() {
           )}
         </div>
       </div>
+
+      {importSuccess && (
+        <div style={{ background: '#22C55E15', border: '1px solid #22C55E40', borderRadius: '8px', padding: '12px 16px', color: '#22C55E', marginBottom: '16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          ✓ {importSuccess}
+          <button onClick={() => setImportSuccess('')} style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: '#22C55E', cursor: 'pointer', fontSize: '16px' }}>×</button>
+        </div>
+      )}
 
       {error && (
         <div style={{ background: '#EF444422', border: '1px solid #EF4444', borderRadius: '8px', padding: '12px', color: '#EF4444', marginBottom: '16px', fontSize: '13px' }}>
@@ -438,6 +459,24 @@ export default function RdvList() {
         onClose={() => setModal({ open: false, rdv: null })}
         onSave={saveRdv}
         rdv={modal.rdv}
+      />
+
+      {/* Modal import screenshot WhatsApp */}
+      <ImportScreenshotModal
+        isOpen={importScreenshot}
+        onClose={() => setImportScreenshot(false)}
+        onImported={(count) => {
+          setImportSuccess(`${count} RDV importés avec succès depuis le screenshot WhatsApp !`)
+          fetchRdvs(1)
+          setPage(1)
+          // Rafraîchir les départements
+          fetch(`${API_BASE}/api/rdv?limit=5000`)
+            .then(r => r.json())
+            .then(data => {
+              const deps = [...new Set((data.data || []).map(r => r.departement).filter(Boolean))].sort()
+              setDepartements(deps)
+            })
+        }}
       />
 
       {/* Modal suppression */}
