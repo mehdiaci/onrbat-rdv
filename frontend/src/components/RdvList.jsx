@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Search, Download, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Filter, Camera } from 'lucide-react'
+import { Plus, Search, Download, FileText, Pencil, Trash2, ChevronLeft, ChevronRight, Filter, FileJson2 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import RdvModal from './RdvModal'
-import ImportScreenshotModal from './ImportScreenshotModal'
+import ImportJsonModal from './ImportJsonModal'
 import { API_BASE } from '../config'
 
 const PAGE_SIZE = 20
@@ -78,7 +78,7 @@ export default function RdvList() {
   const [filters, setFilters] = useState({ statut: '', travaux: '', departement: '', date: '' })
   const [departements, setDepartements] = useState([])
   const [modal, setModal] = useState({ open: false, rdv: null })
-  const [importScreenshot, setImportScreenshot] = useState(false)
+  const [importJson, setImportJson] = useState(false)
   const [deleteId, setDeleteId] = useState(null)
   const [error, setError] = useState('')
   const [importSuccess, setImportSuccess] = useState('')
@@ -248,15 +248,15 @@ export default function RdvList() {
             <FileText size={15} /> PDF
           </button>
           <button
-            onClick={() => setImportScreenshot(true)}
+            onClick={() => setImportJson(true)}
             style={{
               display: 'flex', alignItems: 'center', gap: '8px',
               padding: '9px 18px', borderRadius: '8px', border: 'none',
-              background: '#8B5CF6', color: '#fff',
+              background: '#3B82F6', color: '#fff',
               fontSize: '14px', fontWeight: 600, cursor: 'pointer'
             }}
           >
-            <Camera size={16} /> Importer WhatsApp
+            <FileJson2 size={16} /> Importer JSON
           </button>
           <button
             onClick={() => setModal({ open: true, rdv: null })}
@@ -461,12 +461,12 @@ export default function RdvList() {
         rdv={modal.rdv}
       />
 
-      {/* Modal import screenshot WhatsApp */}
-      <ImportScreenshotModal
-        isOpen={importScreenshot}
-        onClose={() => setImportScreenshot(false)}
+      {/* Modal import JSON */}
+      <ImportJsonModal
+        isOpen={importJson}
+        onClose={() => setImportJson(false)}
         onImported={(count) => {
-          setImportSuccess(`${count} RDV importés avec succès depuis le screenshot WhatsApp !`)
+          setImportSuccess(`${count} RDV importés avec succès via JSON !`)
           fetchRdvs(1)
           setPage(1)
           // Rafraîchir les départements
