@@ -1,10 +1,10 @@
-export default function KpiCard({ title, value, subtitle, icon: Icon, color = '#3B82F6', trend }) {
+export default function KpiCard({ title, value, subtitle, icon: Icon, color = '#00B4D8', trend }) {
   return (
     <div style={{
-      background: '#1E293B',
+      background: '#112240',
       borderRadius: '12px',
       padding: '20px 24px',
-      border: '1px solid #334155',
+      border: '1px solid #1E3A5F',
       flex: 1,
       minWidth: '180px',
       position: 'relative',

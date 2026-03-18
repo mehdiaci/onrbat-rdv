@@ -10,19 +10,20 @@ import { API_BASE } from '../config'
 const PAGE_SIZE = 20
 
 const STATUT_COLORS = {
-  'Devis signé':   { bg: '#22C55E22', color: '#22C55E' },
+  'Devis signé':   { bg: '#00B4D822', color: '#00B4D8' },
+  'Hors cible':    { bg: '#F59E0B22', color: '#F59E0B' },
   'Refus client':  { bg: '#EF444422', color: '#EF4444' },
   'Tutelle':       { bg: '#EF444422', color: '#EF4444' },
   'Déjà équipé':  { bg: '#EF444422', color: '#EF4444' },
   'Refus':         { bg: '#EF444422', color: '#EF4444' },
-  'NRP':           { bg: '#F59E0B22', color: '#F59E0B' },
+  'NRP':           { bg: '#6B728022', color: '#6B7280' },
   'Absent':        { bg: '#64748B22', color: '#94A3B8' },
   'En attente':    { bg: '#3B82F622', color: '#3B82F6' },
   'Passage admin': { bg: '#8B5CF622', color: '#8B5CF6' },
 }
 
 const TRAVAUX_OPTIONS = ['', 'PAC', 'Ampleur', 'Admin']
-const RESULTAT_OPTIONS = ['', 'En attente', 'Devis signé', 'Refus', 'Refus client', 'Tutelle', 'Déjà équipé', 'NRP', 'Absent', 'Passage admin']
+const RESULTAT_OPTIONS = ['', 'En attente', 'Devis signé', 'Hors cible', 'Refus', 'Refus client', 'Tutelle', 'Déjà équipé', 'NRP', 'Absent', 'Passage admin']
 
 function Badge({ statut }) {
   const s = STATUT_COLORS[statut] || { bg: '#64748B22', color: '#94A3B8' }
@@ -45,25 +46,25 @@ const TH = {
   fontWeight: 700,
   textTransform: 'uppercase',
   letterSpacing: '0.07em',
-  borderBottom: '1px solid #334155',
+  borderBottom: '1px solid #1E3A5F',
   whiteSpace: 'nowrap',
-  background: '#1E293B'
+  background: '#112240'
 }
 const TD = {
   padding: '11px 14px',
   color: '#CBD5E1',
   fontSize: '13px',
-  borderBottom: '1px solid #334155',
+  borderBottom: '1px solid #1E3A5F',
   verticalAlign: 'middle'
 }
 
 const BTN_ICON = {
-  background: 'transparent', border: '1px solid #334155',
+  background: 'transparent', border: '1px solid #1E3A5F',
   borderRadius: '6px', padding: '6px', cursor: 'pointer',
   color: '#64748B', display: 'flex', alignItems: 'center'
 }
 const SELECT_STYLE = {
-  background: '#1E293B', border: '1px solid #334155',
+  background: '#112240', border: '1px solid #1E3A5F',
   borderRadius: '8px', padding: '8px 12px',
   color: '#E2E8F0', fontSize: '13px', cursor: 'pointer', outline: 'none'
 }
@@ -86,10 +87,7 @@ export default function RdvList() {
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   const buildParams = useCallback((p = page) => {
-    const params = new URLSearchParams({
-      limit: PAGE_SIZE,
-      offset: (p - 1) * PAGE_SIZE
-    })
+    const params = new URLSearchParams({ limit: PAGE_SIZE, offset: (p - 1) * PAGE_SIZE })
     if (search) params.set('search', search)
     if (filters.statut) params.set('statut', filters.statut)
     if (filters.travaux) params.set('travaux', filters.travaux)
@@ -112,7 +110,6 @@ export default function RdvList() {
     }
   }, [buildParams])
 
-  // Fetch all for export (no pagination)
   const fetchAll = async () => {
     const params = new URLSearchParams({ limit: 10000, offset: 0 })
     if (search) params.set('search', search)
@@ -125,50 +122,32 @@ export default function RdvList() {
     return data.data || []
   }
 
-  // Fetch unique departments
-  useEffect(() => {
+  const refreshDeps = () => {
     fetch(`${API_BASE}/api/rdv?limit=5000`)
       .then(r => r.json())
       .then(data => {
         const deps = [...new Set((data.data || []).map(r => r.departement).filter(Boolean))].sort()
         setDepartements(deps)
       })
-  }, [])
-
-  useEffect(() => {
-    setPage(1)
-  }, [search, filters])
-
-  useEffect(() => {
-    fetchRdvs(page)
-  }, [page, search, filters])
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setSearch(searchInput)
   }
+
+  useEffect(() => { refreshDeps() }, [])
+  useEffect(() => { setPage(1) }, [search, filters])
+  useEffect(() => { fetchRdvs(page) }, [page, search, filters])
+
+  const handleSearch = (e) => { e.preventDefault(); setSearch(searchInput) }
 
   const saveRdv = async (payload) => {
     const isEdit = !!modal.rdv
     const url = isEdit ? `${API_BASE}/api/rdv/${modal.rdv.id}` : `${API_BASE}/api/rdv`
-    const method = isEdit ? 'PUT' : 'POST'
     const res = await fetch(url, {
-      method,
+      method: isEdit ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error || 'Erreur serveur')
-    }
+    if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Erreur serveur') }
     fetchRdvs(page)
-    // Refresh departments
-    fetch(`${API_BASE}/api/rdv?limit=5000`)
-      .then(r => r.json())
-      .then(data => {
-        const deps = [...new Set((data.data || []).map(r => r.departement).filter(Boolean))].sort()
-        setDepartements(deps)
-      })
+    refreshDeps()
   }
 
   const deleteRdv = async (id) => {
@@ -181,17 +160,10 @@ export default function RdvList() {
   const exportExcel = async () => {
     const all = await fetchAll()
     const rows = all.map(r => ({
-      'Date': r.date || '',
-      'Heure': r.heure || '',
-      'Client': r.nom_client || '',
-      'Adresse': r.adresse || '',
-      'Téléphone': r.telephone || '',
-      'Travaux': r.travaux || '',
-      'Confirmation': r.statut_confirmation || '',
-      'Résultat': r.statut_resultat || '',
-      'RAC (€)': r.reste_a_charge ?? '',
-      'Département': r.departement || '',
-      'Notes': r.notes || ''
+      'Date': r.date || '', 'Heure': r.heure || '', 'Client': r.nom_client || '',
+      'Adresse': r.adresse || '', 'Téléphone': r.telephone || '', 'Travaux': r.travaux || '',
+      'Confirmation': r.statut_confirmation || '', 'Résultat': r.statut_resultat || '',
+      'RAC (€)': r.reste_a_charge ?? '', 'Département': r.departement || '', 'Notes': r.notes || ''
     }))
     const ws = XLSX.utils.json_to_sheet(rows)
     const wb = XLSX.utils.book_new()
@@ -202,26 +174,22 @@ export default function RdvList() {
   const exportPDF = async () => {
     const all = await fetchAll()
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
-    doc.setFontSize(16)
-    doc.setTextColor(40, 40, 40)
-    doc.text('ONRBAT — Liste des Rendez-vous', 14, 18)
-    doc.setFontSize(9)
-    doc.setTextColor(120, 120, 120)
+    doc.setFontSize(16); doc.setTextColor(40, 40, 40)
+    doc.text('Capital Talent Invest — Liste des Rendez-vous', 14, 18)
+    doc.setFontSize(9); doc.setTextColor(120, 120, 120)
     doc.text(`Exporté le ${new Date().toLocaleDateString('fr-FR')} · ${all.length} RDV`, 14, 24)
     autoTable(doc, {
       startY: 30,
       head: [['Date', 'Heure', 'Client', 'Adresse', 'Téléphone', 'Travaux', 'Confirmation', 'Résultat', 'RAC (€)']],
-      body: all.map(r => [
-        r.date || '', r.heure || '', r.nom_client || '', r.adresse || '',
+      body: all.map(r => [r.date || '', r.heure || '', r.nom_client || '', r.adresse || '',
         r.telephone || '', r.travaux || '', r.statut_confirmation || '',
-        r.statut_resultat || '', r.reste_a_charge != null ? `${r.reste_a_charge} €` : ''
-      ]),
+        r.statut_resultat || '', r.reste_a_charge != null ? `${r.reste_a_charge} €` : '']),
       styles: { fontSize: 8, cellPadding: 3, textColor: [50, 50, 50] },
-      headStyles: { fillColor: [59, 130, 246], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
+      headStyles: { fillColor: [0, 180, 216], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
       alternateRowStyles: { fillColor: [248, 250, 252] },
       margin: { left: 14, right: 14 }
     })
-    doc.save(`ONRBAT_RDV_${new Date().toISOString().split('T')[0]}.pdf`)
+    doc.save(`CTI_RDV_${new Date().toISOString().split('T')[0]}.pdf`)
   }
 
   const formatEuro = (n) => n != null
@@ -233,12 +201,8 @@ export default function RdvList() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#F1F5F9', letterSpacing: '-0.02em' }}>
-            Rendez-vous
-          </h1>
-          <p style={{ color: '#64748B', fontSize: '14px', marginTop: '4px' }}>
-            {total} RDV au total
-          </p>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#F1F5F9', letterSpacing: '-0.02em' }}>Rendez-vous</h1>
+          <p style={{ color: '#64748B', fontSize: '14px', marginTop: '4px' }}>{total} RDV au total</p>
         </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button onClick={exportExcel} style={{ ...SELECT_STYLE, display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -247,57 +211,40 @@ export default function RdvList() {
           <button onClick={exportPDF} style={{ ...SELECT_STYLE, display: 'flex', alignItems: 'center', gap: '6px' }}>
             <FileText size={15} /> PDF
           </button>
-          <button
-            onClick={() => setImportJson(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '9px 18px', borderRadius: '8px', border: 'none',
-              background: '#3B82F6', color: '#fff',
-              fontSize: '14px', fontWeight: 600, cursor: 'pointer'
-            }}
-          >
+          <button onClick={() => setImportJson(true)} style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '9px 18px', borderRadius: '8px', border: 'none',
+            background: '#0077B6', color: '#fff', fontSize: '14px', fontWeight: 600, cursor: 'pointer'
+          }}>
             <FileJson2 size={16} /> Importer JSON
           </button>
-          <button
-            onClick={() => setModal({ open: true, rdv: null })}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '9px 18px', borderRadius: '8px', border: 'none',
-              background: '#3B82F6', color: '#fff',
-              fontSize: '14px', fontWeight: 600, cursor: 'pointer'
-            }}
-          >
+          <button onClick={() => setModal({ open: true, rdv: null })} style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '9px 18px', borderRadius: '8px', border: 'none',
+            background: '#00B4D8', color: '#fff', fontSize: '14px', fontWeight: 600, cursor: 'pointer'
+          }}>
             <Plus size={16} /> Nouveau RDV
           </button>
         </div>
       </div>
 
       {/* Search + Filters */}
-      <div style={{ background: '#1E293B', borderRadius: '12px', padding: '16px', border: '1px solid #334155', marginBottom: '16px' }}>
+      <div style={{ background: '#112240', borderRadius: '12px', padding: '16px', border: '1px solid #1E3A5F', marginBottom: '16px' }}>
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#0F172A', border: '1px solid #334155', borderRadius: '8px', padding: '0 12px', flex: '1', minWidth: '200px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#0A1628', border: '1px solid #1E3A5F', borderRadius: '8px', padding: '0 12px', flex: '1', minWidth: '200px' }}>
             <Search size={15} color="#64748B" />
-            <input
-              type="text"
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
+            <input type="text" value={searchInput} onChange={e => setSearchInput(e.target.value)}
               placeholder="Rechercher par nom, adresse, téléphone…"
-              style={{ background: 'transparent', border: 'none', outline: 'none', color: '#E2E8F0', fontSize: '14px', padding: '9px 0', width: '100%' }}
-            />
+              style={{ background: 'transparent', border: 'none', outline: 'none', color: '#E2E8F0', fontSize: '14px', padding: '9px 0', width: '100%' }} />
           </div>
-          <button type="submit" style={{ padding: '9px 16px', borderRadius: '8px', border: 'none', background: '#3B82F6', color: '#fff', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+          <button type="submit" style={{ padding: '9px 16px', borderRadius: '8px', border: 'none', background: '#00B4D8', color: '#fff', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
             Rechercher
           </button>
         </form>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
           <Filter size={14} color="#64748B" />
-          <input
-            type="date"
-            value={filters.date}
-            onChange={e => setFilters(f => ({ ...f, date: e.target.value }))}
-            style={{ ...SELECT_STYLE, fontSize: '13px' }}
-          />
+          <input type="date" value={filters.date} onChange={e => setFilters(f => ({ ...f, date: e.target.value }))} style={{ ...SELECT_STYLE, fontSize: '13px' }} />
           <select value={filters.travaux} onChange={e => setFilters(f => ({ ...f, travaux: e.target.value }))} style={SELECT_STYLE}>
             <option value="">Tous travaux</option>
             {TRAVAUX_OPTIONS.filter(Boolean).map(o => <option key={o} value={o}>{o}</option>)}
@@ -311,10 +258,8 @@ export default function RdvList() {
             {departements.map(d => <option key={d} value={d}>Dép. {d}</option>)}
           </select>
           {(search || Object.values(filters).some(Boolean)) && (
-            <button
-              onClick={() => { setSearch(''); setSearchInput(''); setFilters({ statut: '', travaux: '', departement: '', date: '' }) }}
-              style={{ background: 'transparent', border: 'none', color: '#EF4444', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}
-            >
+            <button onClick={() => { setSearch(''); setSearchInput(''); setFilters({ statut: '', travaux: '', departement: '', date: '' }) }}
+              style={{ background: 'transparent', border: 'none', color: '#EF4444', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}>
               Effacer filtres
             </button>
           )}
@@ -335,7 +280,7 @@ export default function RdvList() {
       )}
 
       {/* Table */}
-      <div style={{ background: '#1E293B', borderRadius: '12px', border: '1px solid #334155', overflow: 'hidden' }}>
+      <div style={{ background: '#112240', borderRadius: '12px', border: '1px solid #1E3A5F', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', minWidth: '960px' }}>
             <thead>
@@ -347,20 +292,13 @@ export default function RdvList() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={10} style={{ ...TD, textAlign: 'center', padding: '48px', color: '#475569' }}>
-                    Chargement…
-                  </td>
-                </tr>
+                <tr><td colSpan={10} style={{ ...TD, textAlign: 'center', padding: '48px', color: '#475569' }}>Chargement…</td></tr>
               ) : rdvs.length === 0 ? (
-                <tr>
-                  <td colSpan={10} style={{ ...TD, textAlign: 'center', padding: '48px', color: '#475569' }}>
-                    Aucun rendez-vous trouvé
-                  </td>
-                </tr>
+                <tr><td colSpan={10} style={{ ...TD, textAlign: 'center', padding: '48px', color: '#475569' }}>Aucun rendez-vous trouvé</td></tr>
               ) : rdvs.map((rdv, i) => (
-                <tr key={rdv.id} style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)' }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(59,130,246,0.06)'}
+                <tr key={rdv.id}
+                  style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,180,216,0.05)'}
                   onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)'}
                 >
                   <td style={{ ...TD, fontWeight: 500 }}>{rdv.date || '—'}</td>
@@ -371,7 +309,7 @@ export default function RdvList() {
                   </td>
                   <td style={{ ...TD, whiteSpace: 'nowrap' }}>{rdv.telephone || '—'}</td>
                   <td style={TD}>
-                    <span style={{ color: '#3B82F6', fontWeight: 600, fontSize: '12px' }}>{rdv.travaux || '—'}</span>
+                    <span style={{ color: '#00B4D8', fontWeight: 600, fontSize: '12px' }}>{rdv.travaux || '—'}</span>
                   </td>
                   <td style={TD}>
                     <span style={{ color: rdv.statut_confirmation === 'Confirmé' ? '#22C55E' : '#F59E0B', fontSize: '12px', fontWeight: 500 }}>
@@ -381,24 +319,17 @@ export default function RdvList() {
                   <td style={TD}><Badge statut={rdv.statut_resultat} /></td>
                   <td style={TD}>
                     {rdv.reste_a_charge != null
-                      ? <span style={{ color: '#22C55E', fontWeight: 600 }}>{formatEuro(rdv.reste_a_charge)}</span>
-                      : <span style={{ color: '#475569' }}>—</span>
-                    }
+                      ? <span style={{ color: '#00B4D8', fontWeight: 600 }}>{formatEuro(rdv.reste_a_charge)}</span>
+                      : <span style={{ color: '#475569' }}>—</span>}
                   </td>
                   <td style={TD}>
                     <div style={{ display: 'flex', gap: '6px' }}>
-                      <button
-                        style={{ ...BTN_ICON, color: '#3B82F6', borderColor: '#1D4ED820' }}
-                        onClick={() => setModal({ open: true, rdv })}
-                        title="Modifier"
-                      >
+                      <button style={{ ...BTN_ICON, color: '#00B4D8', borderColor: '#00B4D820' }}
+                        onClick={() => setModal({ open: true, rdv })} title="Modifier">
                         <Pencil size={14} />
                       </button>
-                      <button
-                        style={{ ...BTN_ICON, color: '#EF4444', borderColor: '#EF444420' }}
-                        onClick={() => setDeleteId(rdv.id)}
-                        title="Supprimer"
-                      >
+                      <button style={{ ...BTN_ICON, color: '#EF4444', borderColor: '#EF444420' }}
+                        onClick={() => setDeleteId(rdv.id)} title="Supprimer">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -411,41 +342,25 @@ export default function RdvList() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderTop: '1px solid #334155' }}>
-            <span style={{ color: '#64748B', fontSize: '13px' }}>
-              Page {page} / {totalPages} — {total} résultats
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderTop: '1px solid #1E3A5F' }}>
+            <span style={{ color: '#64748B', fontSize: '13px' }}>Page {page} / {totalPages} — {total} résultats</span>
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                style={{ ...BTN_ICON, opacity: page === 1 ? 0.4 : 1 }}
-              >
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} style={{ ...BTN_ICON, opacity: page === 1 ? 0.4 : 1 }}>
                 <ChevronLeft size={16} />
               </button>
               {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
                 const p = totalPages <= 7 ? i + 1 : page <= 4 ? i + 1 : page >= totalPages - 3 ? totalPages - 6 + i : page - 3 + i
                 return (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    style={{
-                      padding: '6px 10px', borderRadius: '6px',
-                      border: p === page ? 'none' : '1px solid #334155',
-                      background: p === page ? '#3B82F6' : 'transparent',
-                      color: p === page ? '#fff' : '#94A3B8',
-                      fontSize: '13px', fontWeight: p === page ? 700 : 400, cursor: 'pointer'
-                    }}
-                  >
-                    {p}
-                  </button>
+                  <button key={p} onClick={() => setPage(p)} style={{
+                    padding: '6px 10px', borderRadius: '6px',
+                    border: p === page ? 'none' : '1px solid #1E3A5F',
+                    background: p === page ? '#00B4D8' : 'transparent',
+                    color: p === page ? '#fff' : '#94A3B8',
+                    fontSize: '13px', fontWeight: p === page ? 700 : 400, cursor: 'pointer'
+                  }}>{p}</button>
                 )
               })}
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                style={{ ...BTN_ICON, opacity: page === totalPages ? 0.4 : 1 }}
-              >
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} style={{ ...BTN_ICON, opacity: page === totalPages ? 0.4 : 1 }}>
                 <ChevronRight size={16} />
               </button>
             </div>
@@ -453,29 +368,14 @@ export default function RdvList() {
         )}
       </div>
 
-      {/* Modal création/édition */}
-      <RdvModal
-        isOpen={modal.open}
-        onClose={() => setModal({ open: false, rdv: null })}
-        onSave={saveRdv}
-        rdv={modal.rdv}
-      />
+      <RdvModal isOpen={modal.open} onClose={() => setModal({ open: false, rdv: null })} onSave={saveRdv} rdv={modal.rdv} />
 
-      {/* Modal import JSON */}
       <ImportJsonModal
         isOpen={importJson}
         onClose={() => setImportJson(false)}
         onImported={(count) => {
           setImportSuccess(`${count} RDV importés avec succès via JSON !`)
-          fetchRdvs(1)
-          setPage(1)
-          // Rafraîchir les départements
-          fetch(`${API_BASE}/api/rdv?limit=5000`)
-            .then(r => r.json())
-            .then(data => {
-              const deps = [...new Set((data.data || []).map(r => r.departement).filter(Boolean))].sort()
-              setDepartements(deps)
-            })
+          fetchRdvs(1); setPage(1); refreshDeps()
         }}
       />
 
@@ -483,19 +383,15 @@ export default function RdvList() {
       {deleteId && (
         <div className="modal-overlay" onClick={() => setDeleteId(null)}>
           <div className="fade-in" style={{
-            background: '#1E293B', borderRadius: '16px', padding: '32px',
-            width: '420px', maxWidth: '95vw', border: '1px solid #334155',
+            background: '#112240', borderRadius: '16px', padding: '32px',
+            width: '420px', maxWidth: '95vw', border: '1px solid #1E3A5F',
             boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
           }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ color: '#F1F5F9', fontSize: '18px', fontWeight: 700, marginBottom: '12px' }}>
-              Supprimer ce RDV ?
-            </h3>
-            <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '24px' }}>
-              Cette action est irréversible.
-            </p>
+            <h3 style={{ color: '#F1F5F9', fontSize: '18px', fontWeight: 700, marginBottom: '12px' }}>Supprimer ce RDV ?</h3>
+            <p style={{ color: '#64748B', fontSize: '14px', marginBottom: '24px' }}>Cette action est irréversible.</p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button onClick={() => setDeleteId(null)}
-                style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid #334155', background: 'transparent', color: '#94A3B8', cursor: 'pointer', fontSize: '14px' }}>
+                style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid #1E3A5F', background: 'transparent', color: '#94A3B8', cursor: 'pointer', fontSize: '14px' }}>
                 Annuler
               </button>
               <button onClick={() => deleteRdv(deleteId)}

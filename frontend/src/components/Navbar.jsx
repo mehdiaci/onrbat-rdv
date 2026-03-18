@@ -1,4 +1,4 @@
-import { LayoutDashboard, CalendarDays, BarChart3, Zap } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, BarChart3 } from 'lucide-react'
 
 const navItems = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -6,44 +6,69 @@ const navItems = [
   { id: 'stats',     label: 'Statistiques',    icon: BarChart3 },
 ]
 
+// Logo CTI stylisé (Capital Talent Invest)
+function CtiLogo() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '24px 20px 20px' }}>
+      {/* Logo 40x40 */}
+      <div style={{ position: 'relative', width: '48px', height: '48px' }}>
+        {/* Fond dégradé */}
+        <div style={{
+          width: '48px', height: '48px',
+          borderRadius: '12px',
+          background: 'linear-gradient(135deg, #0077B6 0%, #00B4D8 100%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 16px rgba(0,180,216,0.35)',
+        }}>
+          <span style={{
+            color: '#fff',
+            fontWeight: 900,
+            fontSize: '15px',
+            letterSpacing: '0.08em',
+            fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+          }}>CTI</span>
+        </div>
+        {/* Point vert fluo accent */}
+        <div style={{
+          position: 'absolute', bottom: '-2px', right: '-2px',
+          width: '12px', height: '12px',
+          background: '#39FF14',
+          borderRadius: '3px',
+          boxShadow: '0 0 8px rgba(57,255,20,0.8)',
+          border: '2px solid #0A1628',
+        }} />
+      </div>
+      {/* Nom */}
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ color: '#F1F5F9', fontWeight: 800, fontSize: '13px', letterSpacing: '0.02em', lineHeight: 1.2 }}>
+          Capital Talent
+        </div>
+        <div style={{ color: '#00B4D8', fontWeight: 700, fontSize: '12px', letterSpacing: '0.04em' }}>
+          Invest
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Navbar({ currentPage, onNavigate }) {
   return (
     <aside style={{
       position: 'fixed', left: 0, top: 0,
       height: '100vh', width: '240px',
-      background: '#1E293B',
-      borderRight: '1px solid #334155',
+      background: '#0A1628',
+      borderRight: '1px solid #1E3A5F',
       display: 'flex', flexDirection: 'column',
       zIndex: 200, overflow: 'hidden'
     }}>
-      {/* Logo */}
-      <div style={{
-        padding: '28px 24px 24px',
-        borderBottom: '1px solid #334155'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            background: '#3B82F6',
-            borderRadius: '8px',
-            padding: '6px',
-            display: 'flex'
-          }}>
-            <Zap size={18} color="#fff" />
-          </div>
-          <div>
-            <div style={{ color: '#F1F5F9', fontWeight: 800, fontSize: '16px', letterSpacing: '-0.02em' }}>
-              ONRBAT
-            </div>
-            <div style={{ color: '#475569', fontSize: '11px', marginTop: '1px' }}>
-              Gestion des RDV
-            </div>
-          </div>
-        </div>
+      {/* Logo CTI */}
+      <div style={{ borderBottom: '1px solid #1E3A5F' }}>
+        <CtiLogo />
       </div>
 
       {/* Nav */}
       <nav style={{ padding: '16px 12px', flex: 1 }}>
-        <div style={{ color: '#475569', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0 12px 8px' }}>
+        <div style={{ color: '#1E3A5F', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '0 12px 10px' }}>
           Navigation
         </div>
         {navItems.map(item => {
@@ -57,16 +82,16 @@ export default function Navbar({ currentPage, onNavigate }) {
                 display: 'flex', alignItems: 'center', gap: '10px',
                 width: '100%', padding: '10px 12px',
                 borderRadius: '8px', border: 'none',
-                background: active ? 'rgba(59,130,246,0.15)' : 'transparent',
-                color: active ? '#3B82F6' : '#94A3B8',
+                background: active ? 'rgba(0,180,216,0.12)' : 'transparent',
+                color: active ? '#00B4D8' : '#64748B',
                 fontSize: '14px', fontWeight: active ? 600 : 400,
                 cursor: 'pointer', marginBottom: '2px',
                 transition: 'all 0.15s ease',
                 textAlign: 'left',
-                borderLeft: active ? '2px solid #3B82F6' : '2px solid transparent',
+                borderLeft: active ? '2px solid #00B4D8' : '2px solid transparent',
               }}
-              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#CBD5E1' } }}
-              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94A3B8' } }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = '#94A3B8' } }}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748B' } }}
             >
               <Icon size={17} />
               {item.label}
@@ -76,9 +101,12 @@ export default function Navbar({ currentPage, onNavigate }) {
       </nav>
 
       {/* Footer */}
-      <div style={{ padding: '16px 24px', borderTop: '1px solid #334155' }}>
-        <div style={{ color: '#334155', fontSize: '11px' }}>Rénovation Énergétique</div>
-        <div style={{ color: '#1E3A5F', fontSize: '10px', marginTop: '2px' }}>v1.0.0</div>
+      <div style={{ padding: '16px 24px', borderTop: '1px solid #1E3A5F' }}>
+        <div style={{ color: '#1E3A5F', fontSize: '11px' }}>Rénovation Énergétique</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#39FF14', boxShadow: '0 0 4px #39FF14' }} />
+          <span style={{ color: '#1E3A5F', fontSize: '10px' }}>v1.1.0</span>
+        </div>
       </div>
     </aside>
   )

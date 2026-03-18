@@ -3,7 +3,7 @@ import { X } from 'lucide-react'
 
 const TRAVAUX_OPTIONS = ['PAC', 'Ampleur', 'Admin']
 const CONFIRMATION_OPTIONS = ['Confirmé', 'NRP', 'NRP à confirmation']
-const RESULTAT_OPTIONS = ['En attente', 'Devis signé', 'Refus', 'Refus client', 'Tutelle', 'Déjà équipé', 'NRP', 'Absent', 'Passage admin']
+const RESULTAT_OPTIONS = ['En attente', 'Devis signé', 'Hors cible', 'Refus', 'Refus client', 'Tutelle', 'Déjà équipé', 'NRP', 'Absent', 'Passage admin']
 
 const today = new Date().toISOString().split('T')[0]
 
@@ -14,8 +14,8 @@ const EMPTY = {
 }
 
 const INPUT_STYLE = {
-  background: '#0F172A',
-  border: '1px solid #334155',
+  background: '#0A1628',
+  border: '1px solid #1E3A5F',
   borderRadius: '8px',
   padding: '9px 12px',
   color: '#E2E8F0',
@@ -97,14 +97,14 @@ export default function RdvModal({ isOpen, onClose, onSave, rdv }) {
   return (
     <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <div className="fade-in" style={{
-        background: '#1E293B',
+        background: '#112240',
         borderRadius: '16px',
         padding: '32px',
         width: '680px',
         maxWidth: '95vw',
         maxHeight: '92vh',
         overflowY: 'auto',
-        border: '1px solid #334155',
+        border: '1px solid #1E3A5F',
         boxShadow: '0 25px 60px rgba(0,0,0,0.6)'
       }}>
         {/* Header */}
@@ -214,7 +214,7 @@ export default function RdvModal({ isOpen, onClose, onSave, rdv }) {
               type="submit" disabled={saving}
               style={{
                 padding: '10px 24px', borderRadius: '8px', border: 'none',
-                background: saving ? '#1D4ED8' : '#3B82F6',
+                background: saving ? '#0077B6' : '#00B4D8',
                 color: '#fff', fontSize: '14px', fontWeight: 600,
                 cursor: saving ? 'not-allowed' : 'pointer',
                 opacity: saving ? 0.8 : 1

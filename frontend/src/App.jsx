@@ -8,7 +8,7 @@ export default function App() {
   const [page, setPage] = useState('dashboard')
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0F172A' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1B2A' }}>
       <Navbar currentPage={page} onNavigate={setPage} />
       <main style={{
         flex: 1,

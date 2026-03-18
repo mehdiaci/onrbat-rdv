@@ -8,24 +8,25 @@ import KpiCard from './KpiCard'
 import { API_BASE } from '../config'
 
 const STATUT_COLORS = {
-  'Devis signé':    '#22C55E',
+  'Devis signé':    '#00B4D8',
+  'Hors cible':     '#F59E0B',
   'Refus client':   '#EF4444',
   'Tutelle':        '#EF4444',
   'Déjà équipé':   '#EF4444',
   'Refus':          '#EF4444',
-  'NRP':            '#F59E0B',
+  'NRP':            '#6B7280',
   'Absent':         '#64748B',
   'En attente':     '#3B82F6',
   'Passage admin':  '#8B5CF6',
 }
 
 function StatutBadge({ statut }) {
-  const colors = STATUT_COLORS[statut] || '#64748B'
+  const color = STATUT_COLORS[statut] || '#64748B'
   return (
     <span style={{
       display: 'inline-block',
-      background: `${colors}22`,
-      color: colors,
+      background: `${color}22`,
+      color,
       padding: '3px 10px',
       borderRadius: '20px',
       fontSize: '12px',
@@ -38,10 +39,10 @@ function StatutBadge({ statut }) {
 }
 
 const CARD = {
-  background: '#1E293B',
+  background: '#112240',
   borderRadius: '12px',
   padding: '24px',
-  border: '1px solid #334155'
+  border: '1px solid #1E3A5F'
 }
 
 const TH = {
@@ -52,7 +53,7 @@ const TH = {
   fontWeight: 700,
   textTransform: 'uppercase',
   letterSpacing: '0.08em',
-  borderBottom: '1px solid #334155',
+  borderBottom: '1px solid #1E3A5F',
   whiteSpace: 'nowrap'
 }
 
@@ -60,13 +61,13 @@ const TD = {
   padding: '12px 16px',
   color: '#CBD5E1',
   fontSize: '13px',
-  borderBottom: '1px solid #1E293B'
+  borderBottom: '1px solid #0D1B2A'
 }
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px' }}>
+    <div style={{ background: '#112240', border: '1px solid #1E3A5F', borderRadius: '8px', padding: '10px 14px' }}>
       <p style={{ color: '#94A3B8', fontSize: '12px', marginBottom: '4px' }}>{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color, fontWeight: 600, fontSize: '14px' }}>{p.value} RDV</p>
@@ -112,7 +113,7 @@ export default function Dashboard() {
           Tableau de bord
         </h1>
         <p style={{ color: '#64748B', marginTop: '4px', fontSize: '14px' }}>
-          Vue d'ensemble de l'activité commerciale ONRBAT
+          Vue d'ensemble — Capital Talent Invest
         </p>
       </div>
 
@@ -121,16 +122,16 @@ export default function Dashboard() {
         <KpiCard
           title="Total RDV"
           value={kpis.totalRdv}
-          subtitle={`${kpis.totalVisites} visités`}
+          subtitle={`${kpis.totalVisites} visités & ciblés`}
           icon={Users}
-          color="#3B82F6"
+          color="#00B4D8"
         />
         <KpiCard
           title="Taux de concrétisation"
           value={`${kpis.tauxConcretisation}%`}
           subtitle={`${kpis.totalSignes} devis signés`}
           icon={TrendingUp}
-          color="#22C55E"
+          color="#00B4D8"
         />
         <KpiCard
           title="RAC total signé"
@@ -144,7 +145,7 @@ export default function Dashboard() {
           value={kpis.rdvCetteSemaine}
           subtitle="7 derniers jours"
           icon={CalendarDays}
-          color="#8B5CF6"
+          color="#0077B6"
         />
       </div>
 
@@ -157,13 +158,8 @@ export default function Dashboard() {
           </h3>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={statutRepartition} margin={{ top: 0, right: 8, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-              <XAxis
-                dataKey="statut_resultat"
-                tick={{ fill: '#64748B', fontSize: 11 }}
-                tickLine={false}
-                axisLine={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E3A5F" vertical={false} />
+              <XAxis dataKey="statut_resultat" tick={{ fill: '#64748B', fontSize: 11 }} tickLine={false} axisLine={false} />
               <YAxis tick={{ fill: '#64748B', fontSize: 11 }} tickLine={false} axisLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="count" radius={[6, 6, 0, 0]}>
@@ -181,23 +177,12 @@ export default function Dashboard() {
             Top départements
           </h3>
           <ResponsiveContainer width="100%" height={240}>
-            <BarChart
-              data={topDepartements}
-              layout="vertical"
-              margin={{ top: 0, right: 24, left: 0, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
+            <BarChart data={topDepartements} layout="vertical" margin={{ top: 0, right: 24, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E3A5F" horizontal={false} />
               <XAxis type="number" tick={{ fill: '#64748B', fontSize: 11 }} tickLine={false} axisLine={false} />
-              <YAxis
-                type="category"
-                dataKey="departement"
-                tick={{ fill: '#94A3B8', fontSize: 12 }}
-                tickLine={false}
-                axisLine={false}
-                width={32}
-              />
+              <YAxis type="category" dataKey="departement" tick={{ fill: '#94A3B8', fontSize: 12 }} tickLine={false} axisLine={false} width={32} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" fill="#3B82F6" radius={[0, 6, 6, 0]} />
+              <Bar dataKey="count" fill="#00B4D8" radius={[0, 6, 6, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -225,26 +210,18 @@ export default function Dashboard() {
                   </td>
                 </tr>
               ) : recentRdv.map((rdv, i) => (
-                <tr
-                  key={rdv.id}
-                  style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}
-                >
+                <tr key={rdv.id} style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
                   <td style={TD}>{rdv.date || '—'}</td>
                   <td style={{ ...TD, color: '#F1F5F9', fontWeight: 500 }}>{rdv.nom_client || '—'}</td>
                   <td style={TD}>
-                    <span style={{ color: '#3B82F6', fontSize: '12px', fontWeight: 600 }}>
-                      {rdv.travaux || '—'}
-                    </span>
+                    <span style={{ color: '#00B4D8', fontSize: '12px', fontWeight: 600 }}>{rdv.travaux || '—'}</span>
                   </td>
-                  <td style={TD}>
-                    {rdv.departement ? `Dép. ${rdv.departement}` : '—'}
-                  </td>
+                  <td style={TD}>{rdv.departement ? `Dép. ${rdv.departement}` : '—'}</td>
                   <td style={TD}><StatutBadge statut={rdv.statut_resultat} /></td>
                   <td style={TD}>
                     {rdv.reste_a_charge != null
-                      ? <span style={{ color: '#22C55E', fontWeight: 600 }}>{formatEuro(rdv.reste_a_charge)}</span>
-                      : <span style={{ color: '#475569' }}>—</span>
-                    }
+                      ? <span style={{ color: '#00B4D8', fontWeight: 600 }}>{formatEuro(rdv.reste_a_charge)}</span>
+                      : <span style={{ color: '#475569' }}>—</span>}
                   </td>
                 </tr>
               ))}
