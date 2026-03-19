@@ -101,9 +101,13 @@ router.get('/', (req, res) => {
     `).all(...params);
 
     // ─── Performance par type de travaux (nettoyée) ───
+    // "Admin" et "Admin (passage administratif)" fusionnés en "Passage Admin"
     const byTravaux = db.prepare(`
       SELECT
-        COALESCE(travaux, 'Non défini') as travaux,
+        CASE
+          WHEN travaux IN ('Admin', 'Admin (passage administratif)') THEN 'Passage Admin'
+          ELSE COALESCE(travaux, 'Non défini')
+        END as travaux,
         COUNT(*) as total,
         SUM(CASE WHEN statut_resultat IN ${VISITED_STATUTS} THEN 1 ELSE 0 END) as visitees,
         SUM(CASE WHEN statut_resultat = 'Devis signé' THEN 1 ELSE 0 END) as signes,
@@ -111,7 +115,11 @@ router.get('/', (req, res) => {
       FROM rdv WHERE 1=1 ${dateFilter}
         AND travaux IS NOT NULL
         AND travaux NOT IN ${EXCLUDED_TRAVAUX}
-      GROUP BY travaux ORDER BY total DESC
+      GROUP BY CASE
+        WHEN travaux IN ('Admin', 'Admin (passage administratif)') THEN 'Passage Admin'
+        ELSE COALESCE(travaux, 'Non défini')
+      END
+      ORDER BY total DESC
     `).all(...params);
 
     // ─── Évolution par semaine (8 dernières semaines) avec taux ───

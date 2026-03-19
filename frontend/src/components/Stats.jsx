@@ -217,9 +217,10 @@ export default function Stats() {
       {byTravaux.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
           {byTravaux.map(t => {
-            // Dénominateur = RDV visités : Devis signé + Refus + Refus de passage
+            // Dénominateur = RDV visités : Devis signé + Refus
+            const isAdmin = t.travaux === 'Passage Admin'
             const taux = (t.visitees || 0) > 0 ? ((t.signes / t.visitees) * 100).toFixed(1) : 0
-            const c = tauxColor(parseFloat(taux))
+            const c = isAdmin ? '#6B7280' : tauxColor(parseFloat(taux))
             return (
               <div key={t.travaux} style={CARD}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -233,6 +234,11 @@ export default function Stats() {
                     <p style={{ color: '#64748B', fontSize: '12px', marginTop: '6px' }}>
                       {t.signes} signé{t.signes > 1 ? 's' : ''} / {t.visitees || 0} visité{(t.visitees || 0) > 1 ? 's' : ''}
                     </p>
+                    {isAdmin && (
+                      <p style={{ color: '#475569', fontSize: '11px', marginTop: '4px', fontStyle: 'italic' }}>
+                        Hors taux commercial
+                      </p>
+                    )}
                   </div>
                   {t.rac_total > 0 && (
                     <div style={{ textAlign: 'right' }}>
