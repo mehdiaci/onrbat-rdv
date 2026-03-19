@@ -52,9 +52,12 @@ const SELECT = {
 
 const TOOLTIP_STYLE = {
   contentStyle: {
-    background: C.card, border: `1px solid ${C.border}`,
-    borderRadius: '8px', color: '#F1F5F9', fontSize: '13px'
-  }
+    backgroundColor: '#1E3A5F', border: '1px solid #00B4D8',
+    borderRadius: '8px', color: '#FFFFFF', fontSize: '14px',
+    padding: '10px 14px', boxShadow: '0 4px 12px rgba(0,0,0,0.4)'
+  },
+  labelStyle: { color: '#00B4D8', fontWeight: 'bold' },
+  itemStyle: { color: '#FFFFFF' }
 }
 
 function CustomPieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }) {

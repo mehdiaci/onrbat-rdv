@@ -68,10 +68,10 @@ const TD = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div style={{ background: '#112240', border: '1px solid #1E3A5F', borderRadius: '8px', padding: '10px 14px' }}>
-      <p style={{ color: '#94A3B8', fontSize: '12px', marginBottom: '4px' }}>{label}</p>
+    <div style={{ backgroundColor: '#1E3A5F', border: '1px solid #00B4D8', borderRadius: '8px', padding: '10px 14px', boxShadow: '0 4px 12px rgba(0,0,0,0.4)' }}>
+      <p style={{ color: '#00B4D8', fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }}>{label}</p>
       {payload.map((p, i) => (
-        <p key={i} style={{ color: p.color, fontWeight: 600, fontSize: '14px' }}>{p.value} RDV</p>
+        <p key={i} style={{ color: '#FFFFFF', fontWeight: 600, fontSize: '14px' }}>{p.value} RDV</p>
       ))}
     </div>
   )
