@@ -90,23 +90,24 @@ function seedIfEmpty() {
 
 seedIfEmpty();
 
-// ── Migration : DD/MM/YYYY → YYYY-MM-DD (idempotente) ────────────────────────
-// Détecte et convertit toutes les dates encore en ancien format.
-// S'exécute à chaque démarrage mais ne modifie rien si tout est déjà en ISO.
-function migrateDates() {
-  const rows = db.prepare("SELECT id, date FROM rdv WHERE date GLOB '__/__/____'").all();
-  if (rows.length === 0) return;
-
-  const update = db.prepare('UPDATE rdv SET date = ? WHERE id = ?');
-  db.transaction(() => {
-    for (const row of rows) {
-      const iso = normalizeDate(row.date);
-      if (iso) update.run(iso, row.id);
-    }
-  })();
-  console.log(`✅ Migration dates: ${rows.length} ligne(s) converties DD/MM/YYYY → YYYY-MM-DD`);
+// ── Migration : DD/MM/YYYY → YYYY-MM-DD (idempotente, SQL natif) ─────────────
+// Une seule requête SQL convertit tous les "26/01/2026" en "2026-01-26".
+// S'exécute à chaque démarrage sans effet si tout est déjà en ISO.
+const migrationResult = db.prepare(`
+  UPDATE rdv
+  SET date = substr(date,7,4) || '-' || substr(date,4,2) || '-' || substr(date,1,2)
+  WHERE date LIKE '__/__/____'
+`).run();
+if (migrationResult.changes > 0) {
+  console.log(`✅ Migration dates: ${migrationResult.changes} ligne(s) converties DD/MM/YYYY → YYYY-MM-DD`);
 }
 
-migrateDates();
+// ── Vérification post-migration ───────────────────────────────────────────────
+const badDates = db.prepare("SELECT COUNT(*) as n FROM rdv WHERE date IS NOT NULL AND date NOT LIKE '____-__-__'").get();
+if (badDates.n > 0) {
+  console.error(`❌ ${badDates.n} date(s) encore dans un format non-ISO — vérifiez la base.`);
+} else {
+  console.log('✅ Toutes les dates sont au format YYYY-MM-DD');
+}
 
 module.exports = { db, extractDepartement, normalizeDate, normVal };

@@ -23,7 +23,7 @@ router.get('/', (req, res) => {
     const countQuery = query.replace('SELECT *', 'SELECT COUNT(*) as count');
     const total = db.prepare(countQuery).get(...params);
 
-    query += ' ORDER BY date DESC, heure DESC LIMIT ? OFFSET ?';
+    query += ' ORDER BY date DESC, heure ASC LIMIT ? OFFSET ?';
     params.push(parseInt(limit), parseInt(offset));
 
     const rdvs = db.prepare(query).all(...params);
