@@ -3,8 +3,8 @@ const router = express.Router();
 const { db } = require('../database');
 
 // Statuts comptant comme "RDV visité" au dénominateur du taux de concrétisation
-// RDV visité = le commercial a rencontré le client (signé, refus en face-à-face, refus à la porte)
-const VISITED_STATUTS = `('Devis signé', 'Refus', 'Refus de passage')`;
+// Taux = Devis signés / (Devis signés + Refus)
+const VISITED_STATUTS = `('Devis signé', 'Refus')`;
 
 // Types de travaux non pertinents pour les stats
 const EXCLUDED_TRAVAUX = `(

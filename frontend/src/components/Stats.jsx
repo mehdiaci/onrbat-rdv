@@ -429,7 +429,7 @@ export default function Stats() {
               <div style={{ color: tauxColor(kpis.tauxConcretisation), fontSize: '24px', fontWeight: 800, marginTop: '4px' }}>
                 {kpis.tauxConcretisation}%
               </div>
-              <div style={{ color: '#475569', fontSize: '11px' }}>sur {kpis.totalVisites} RDV visités (Devis signé / Refus / Refus de passage)</div>
+              <div style={{ color: '#475569', fontSize: '11px' }}>sur {kpis.totalVisites} RDV visités (Devis signé + Refus)</div>
             </div>
             <div>
               <span style={{ color: '#64748B', fontSize: '12px' }}>Total RDV</span>
