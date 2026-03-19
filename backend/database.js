@@ -90,4 +90,23 @@ function seedIfEmpty() {
 
 seedIfEmpty();
 
+// ── Migration : DD/MM/YYYY → YYYY-MM-DD (idempotente) ────────────────────────
+// Détecte et convertit toutes les dates encore en ancien format.
+// S'exécute à chaque démarrage mais ne modifie rien si tout est déjà en ISO.
+function migrateDates() {
+  const rows = db.prepare("SELECT id, date FROM rdv WHERE date GLOB '__/__/____'").all();
+  if (rows.length === 0) return;
+
+  const update = db.prepare('UPDATE rdv SET date = ? WHERE id = ?');
+  db.transaction(() => {
+    for (const row of rows) {
+      const iso = normalizeDate(row.date);
+      if (iso) update.run(iso, row.id);
+    }
+  })();
+  console.log(`✅ Migration dates: ${rows.length} ligne(s) converties DD/MM/YYYY → YYYY-MM-DD`);
+}
+
+migrateDates();
+
 module.exports = { db, extractDepartement, normalizeDate, normVal };

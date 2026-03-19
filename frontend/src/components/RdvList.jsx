@@ -9,6 +9,13 @@ import { API_BASE } from '../config'
 
 const PAGE_SIZE = 20
 
+// Convertit YYYY-MM-DD → DD/MM/YYYY pour l'affichage (ne touche pas aux valeurs ISO envoyées au backend)
+const fmtDate = (d) => {
+  if (!d) return '—'
+  const m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : d
+}
+
 const STATUT_COLORS = {
   'Devis signé':   { bg: '#00B4D822', color: '#00B4D8' },
   'Hors cible':    { bg: '#F59E0B22', color: '#F59E0B' },
@@ -163,7 +170,7 @@ export default function RdvList() {
   const exportExcel = async () => {
     const all = await fetchAll()
     const rows = all.map(r => ({
-      'Date': r.date || '', 'Heure': r.heure || '', 'Client': r.nom_client || '',
+      'Date': fmtDate(r.date), 'Heure': r.heure || '', 'Client': r.nom_client || '',
       'Adresse': r.adresse || '', 'Téléphone': r.telephone || '', 'Travaux': r.travaux || '',
       'Confirmation': r.statut_confirmation || '', 'Résultat': r.statut_resultat || '',
       'RAC (€)': r.reste_a_charge ?? '', 'Département': r.departement || '', 'Notes': r.notes || ''
@@ -184,7 +191,7 @@ export default function RdvList() {
     autoTable(doc, {
       startY: 30,
       head: [['Date', 'Heure', 'Client', 'Adresse', 'Téléphone', 'Travaux', 'Confirmation', 'Résultat', 'RAC (€)']],
-      body: all.map(r => [r.date || '', r.heure || '', r.nom_client || '', r.adresse || '',
+      body: all.map(r => [fmtDate(r.date), r.heure || '', r.nom_client || '', r.adresse || '',
         r.telephone || '', r.travaux || '', r.statut_confirmation || '',
         r.statut_resultat || '', r.reste_a_charge != null ? `${r.reste_a_charge} €` : '']),
       styles: { fontSize: 8, cellPadding: 3, textColor: [50, 50, 50] },
@@ -321,7 +328,7 @@ export default function RdvList() {
                   onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,180,216,0.05)'}
                   onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)'}
                 >
-                  <td style={{ ...TD, fontWeight: 500 }}>{rdv.date || '—'}</td>
+                  <td style={{ ...TD, fontWeight: 500 }}>{fmtDate(rdv.date)}</td>
                   <td style={TD}>{rdv.heure || '—'}</td>
                   <td style={{ ...TD, color: '#F1F5F9', fontWeight: 500, whiteSpace: 'nowrap' }}>{rdv.nom_client || '—'}</td>
                   <td style={{ ...TD, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={rdv.adresse}>
