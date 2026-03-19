@@ -77,7 +77,7 @@ export default function RdvList() {
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
-  const [filters, setFilters] = useState({ statut: '', travaux: '', departement: '', date: '' })
+  const [filters, setFilters] = useState({ statut: '', travaux: '', departement: '', dateFrom: '', dateTo: '' })
   const [departements, setDepartements] = useState([])
   const [modal, setModal] = useState({ open: false, rdv: null })
   const [importJson, setImportJson] = useState(false)
@@ -93,7 +93,8 @@ export default function RdvList() {
     if (filters.statut) params.set('statut', filters.statut)
     if (filters.travaux) params.set('travaux', filters.travaux)
     if (filters.departement) params.set('departement', filters.departement)
-    if (filters.date) params.set('date', filters.date)
+    if (filters.dateFrom) params.set('dateFrom', filters.dateFrom)
+    if (filters.dateTo)   params.set('dateTo',   filters.dateTo)
     return params
   }, [page, search, filters])
 
@@ -117,7 +118,8 @@ export default function RdvList() {
     if (filters.statut) params.set('statut', filters.statut)
     if (filters.travaux) params.set('travaux', filters.travaux)
     if (filters.departement) params.set('departement', filters.departement)
-    if (filters.date) params.set('date', filters.date)
+    if (filters.dateFrom) params.set('dateFrom', filters.dateFrom)
+    if (filters.dateTo)   params.set('dateTo',   filters.dateTo)
     const res = await fetch(`${API_BASE}/api/rdv?${params}`)
     const data = await res.json()
     return data.data || []
@@ -245,7 +247,23 @@ export default function RdvList() {
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
           <Filter size={14} color="#64748B" />
-          <input type="date" value={filters.date} onChange={e => setFilters(f => ({ ...f, date: e.target.value }))} style={{ ...SELECT_STYLE, fontSize: '13px' }} />
+          {/* Plage de dates */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ color: '#64748B', fontSize: '12px', whiteSpace: 'nowrap' }}>Du</span>
+            <input
+              type="date"
+              value={filters.dateFrom}
+              onChange={e => setFilters(f => ({ ...f, dateFrom: e.target.value }))}
+              style={{ ...SELECT_STYLE, fontSize: '13px' }}
+            />
+            <span style={{ color: '#64748B', fontSize: '12px', whiteSpace: 'nowrap' }}>au</span>
+            <input
+              type="date"
+              value={filters.dateTo}
+              onChange={e => setFilters(f => ({ ...f, dateTo: e.target.value }))}
+              style={{ ...SELECT_STYLE, fontSize: '13px' }}
+            />
+          </div>
           <select value={filters.travaux} onChange={e => setFilters(f => ({ ...f, travaux: e.target.value }))} style={SELECT_STYLE}>
             <option value="">Tous travaux</option>
             {TRAVAUX_OPTIONS.filter(Boolean).map(o => <option key={o} value={o}>{o}</option>)}
@@ -259,9 +277,10 @@ export default function RdvList() {
             {departements.map(d => <option key={d} value={d}>Dép. {d}</option>)}
           </select>
           {(search || Object.values(filters).some(Boolean)) && (
-            <button onClick={() => { setSearch(''); setSearchInput(''); setFilters({ statut: '', travaux: '', departement: '', date: '' }) }}
-              style={{ background: 'transparent', border: 'none', color: '#EF4444', fontSize: '13px', cursor: 'pointer', textDecoration: 'underline' }}>
-              Effacer filtres
+            <button
+              onClick={() => { setSearch(''); setSearchInput(''); setFilters({ statut: '', travaux: '', departement: '', dateFrom: '', dateTo: '' }) }}
+              style={{ background: 'transparent', border: '1px solid #EF444440', borderRadius: '6px', color: '#EF4444', fontSize: '13px', cursor: 'pointer', padding: '6px 12px' }}>
+              Réinitialiser
             </button>
           )}
         </div>

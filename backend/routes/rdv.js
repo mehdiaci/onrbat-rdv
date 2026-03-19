@@ -5,12 +5,13 @@ const { db, extractDepartement } = require('../database');
 // GET /api/rdv
 router.get('/', (req, res) => {
   try {
-    const { date, statut, departement, travaux, search, limit = 1000, offset = 0 } = req.query;
+    const { dateFrom, dateTo, statut, departement, travaux, search, limit = 1000, offset = 0 } = req.query;
 
     let query = 'SELECT * FROM rdv WHERE 1=1';
     const params = [];
 
-    if (date) { query += ' AND date = ?'; params.push(date); }
+    if (dateFrom) { query += ' AND date >= ?'; params.push(dateFrom); }
+    if (dateTo)   { query += ' AND date <= ?'; params.push(dateTo); }
     if (statut) { query += ' AND statut_resultat = ?'; params.push(statut); }
     if (departement) { query += ' AND departement = ?'; params.push(departement); }
     if (travaux) { query += ' AND travaux = ?'; params.push(travaux); }
