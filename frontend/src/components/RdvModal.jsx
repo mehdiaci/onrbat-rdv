@@ -3,7 +3,7 @@ import { X } from 'lucide-react'
 
 const TRAVAUX_OPTIONS = ['PAC', 'Ampleur', 'Admin']
 const CONFIRMATION_OPTIONS = ['Confirmé', 'NRP', 'NRP à confirmation']
-const RESULTAT_OPTIONS = ['En attente', 'Devis signé', 'Hors cible', 'Refus', 'Refus client', 'Tutelle', 'Déjà équipé', 'NRP', 'Absent', 'Passage admin']
+const RESULTAT_OPTIONS = ['En attente', 'Devis signé', 'Hors cible', 'Refus', 'Refus client', 'Refus de passage', 'Tutelle', 'Déjà équipé', 'NRP', 'Absent', 'Passage admin']
 
 const today = new Date().toISOString().split('T')[0]
 

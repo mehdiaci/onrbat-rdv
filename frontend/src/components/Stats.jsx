@@ -17,7 +17,7 @@ const C = {
 }
 
 // Statuts pertinents pour le pie chart
-const STATUTS_GARDES = ['Devis signé', 'Hors cible', 'NRP', 'En attente', 'Récupération docs', 'Refus', 'Refus client', 'Tutelle', 'Déjà équipé', 'Absent']
+const STATUTS_GARDES = ['Devis signé', 'Hors cible', 'NRP', 'En attente', 'Récupération docs', 'Refus', 'Refus client', 'Refus de passage', 'Tutelle', 'Déjà équipé', 'Absent']
 
 const STATUT_COLORS_PIE = {
   'Devis signé':      '#00B4D8',
@@ -27,6 +27,7 @@ const STATUT_COLORS_PIE = {
   'Récupération docs':'#8B5CF6',
   'Refus':            '#EF4444',
   'Refus client':     '#EF4444',
+  'Refus de passage': '#F97316',
   'Tutelle':          '#DC2626',
   'Déjà équipé':     '#B91C1C',
   'Absent':           '#475569',

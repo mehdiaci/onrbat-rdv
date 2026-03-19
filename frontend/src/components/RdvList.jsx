@@ -15,15 +15,16 @@ const STATUT_COLORS = {
   'Refus client':  { bg: '#EF444422', color: '#EF4444' },
   'Tutelle':       { bg: '#EF444422', color: '#EF4444' },
   'Déjà équipé':  { bg: '#EF444422', color: '#EF4444' },
-  'Refus':         { bg: '#EF444422', color: '#EF4444' },
-  'NRP':           { bg: '#6B728022', color: '#6B7280' },
+  'Refus':            { bg: '#EF444422', color: '#EF4444' },
+  'Refus de passage': { bg: '#F9731622', color: '#F97316' },
+  'NRP':              { bg: '#6B728022', color: '#6B7280' },
   'Absent':        { bg: '#64748B22', color: '#94A3B8' },
   'En attente':    { bg: '#3B82F622', color: '#3B82F6' },
   'Passage admin': { bg: '#8B5CF622', color: '#8B5CF6' },
 }
 
 const TRAVAUX_OPTIONS = ['', 'PAC', 'Ampleur', 'Admin']
-const RESULTAT_OPTIONS = ['', 'En attente', 'Devis signé', 'Hors cible', 'Refus', 'Refus client', 'Tutelle', 'Déjà équipé', 'NRP', 'Absent', 'Passage admin']
+const RESULTAT_OPTIONS = ['', 'En attente', 'Devis signé', 'Hors cible', 'Refus', 'Refus client', 'Refus de passage', 'Tutelle', 'Déjà équipé', 'NRP', 'Absent', 'Passage admin']
 
 function Badge({ statut }) {
   const s = STATUT_COLORS[statut] || { bg: '#64748B22', color: '#94A3B8' }
