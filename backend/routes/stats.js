@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../database');
 
-// Statuts exclus du dénominateur du taux de concrétisation
-// Seuls les RDV visités ET ciblés comptent
-const EXCLUDED_STATUTS = `('Hors cible', 'NRP', 'Absent', 'Passage admin', 'En attente')`;
+// Statuts comptant comme "RDV visité" au dénominateur du taux de concrétisation
+// RDV visité = le commercial a rencontré le client (signé, refus en face-à-face, refus à la porte)
+const VISITED_STATUTS = `('Devis signé', 'Refus', 'Refus de passage')`;
 
 // Types de travaux non pertinents pour les stats
 const EXCLUDED_TRAVAUX = `(
@@ -43,12 +43,11 @@ router.get('/', (req, res) => {
       FROM rdv WHERE statut_resultat = 'Devis signé' ${dateFilter}
     `).get(...params);
 
-    // ─── Dénominateur taux : visités ET ciblés ───
-    // Exclude: Hors cible, NRP, Absent, Passage admin, En attente
+    // ─── Dénominateur taux : RDV visités uniquement ───
+    // Visité = Devis signé | Refus | Refus de passage
     const visitedRdv = db.prepare(`
       SELECT COUNT(*) as count FROM rdv
-      WHERE statut_resultat IS NOT NULL
-        AND statut_resultat NOT IN ${EXCLUDED_STATUTS}
+      WHERE statut_resultat IN ${VISITED_STATUTS}
         ${dateFilter}
     `).get(...params);
 
@@ -64,8 +63,7 @@ router.get('/', (req, res) => {
         SUM(CASE WHEN statut_resultat = 'Devis signé' THEN 1 ELSE 0 END) as signes
       FROM rdv
       WHERE date = date('now')
-        AND statut_resultat IS NOT NULL
-        AND statut_resultat NOT IN ${EXCLUDED_STATUTS}
+        AND statut_resultat IN ${VISITED_STATUTS}
     `).get();
 
     // ─── Taux semaine en cours ───
@@ -75,8 +73,7 @@ router.get('/', (req, res) => {
         SUM(CASE WHEN statut_resultat = 'Devis signé' THEN 1 ELSE 0 END) as signes
       FROM rdv
       WHERE strftime('%Y-%W', date) = strftime('%Y-%W', date('now'))
-        AND statut_resultat IS NOT NULL
-        AND statut_resultat NOT IN ${EXCLUDED_STATUTS}
+        AND statut_resultat IN ${VISITED_STATUTS}
     `).get();
 
     // ─── Taux du mois en cours ───
@@ -86,8 +83,7 @@ router.get('/', (req, res) => {
         SUM(CASE WHEN statut_resultat = 'Devis signé' THEN 1 ELSE 0 END) as signes
       FROM rdv
       WHERE strftime('%Y-%m', date) = strftime('%Y-%m', date('now'))
-        AND statut_resultat IS NOT NULL
-        AND statut_resultat NOT IN ${EXCLUDED_STATUTS}
+        AND statut_resultat IN ${VISITED_STATUTS}
     `).get();
 
     // ─── Répartition par statut résultat ───
@@ -109,6 +105,7 @@ router.get('/', (req, res) => {
       SELECT
         COALESCE(travaux, 'Non défini') as travaux,
         COUNT(*) as total,
+        SUM(CASE WHEN statut_resultat IN ${VISITED_STATUTS} THEN 1 ELSE 0 END) as visitees,
         SUM(CASE WHEN statut_resultat = 'Devis signé' THEN 1 ELSE 0 END) as signes,
         COALESCE(SUM(CASE WHEN statut_resultat = 'Devis signé' THEN reste_a_charge ELSE 0 END), 0) as rac_total
       FROM rdv WHERE 1=1 ${dateFilter}
@@ -123,8 +120,7 @@ router.get('/', (req, res) => {
         strftime('%Y-W%W', date) as semaine,
         COUNT(*) as total,
         SUM(CASE WHEN statut_resultat = 'Devis signé' THEN 1 ELSE 0 END) as signes,
-        SUM(CASE WHEN statut_resultat IS NOT NULL
-          AND statut_resultat NOT IN ${EXCLUDED_STATUTS}
+        SUM(CASE WHEN statut_resultat IN ${VISITED_STATUTS}
           THEN 1 ELSE 0 END) as denominateur
       FROM rdv WHERE date >= date('now', '-56 days')
       GROUP BY semaine ORDER BY semaine ASC
@@ -162,6 +158,7 @@ router.get('/', (req, res) => {
       SELECT
         departement,
         COUNT(*) as total,
+        SUM(CASE WHEN statut_resultat IN ${VISITED_STATUTS} THEN 1 ELSE 0 END) as visitees,
         SUM(CASE WHEN statut_resultat = 'Devis signé' THEN 1 ELSE 0 END) as signes,
         COALESCE(SUM(CASE WHEN statut_resultat = 'Devis signé' THEN reste_a_charge ELSE 0 END), 0) as rac_total
       FROM rdv WHERE departement IS NOT NULL ${dateFilter}

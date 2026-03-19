@@ -130,7 +130,7 @@ export default function Dashboard() {
         <KpiCard
           title="Taux de concrétisation"
           value={`${kpis.tauxConcretisation}%`}
-          subtitle={`${kpis.totalSignes} devis signés`}
+          subtitle={`${kpis.totalSignes} signés / ${kpis.totalVisites} visités`}
           icon={TrendingUp}
           color="#00B4D8"
         />

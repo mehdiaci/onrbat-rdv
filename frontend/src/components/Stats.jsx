@@ -96,8 +96,8 @@ function TauxCard({ label, taux, signes, denominateur, icon: Icon, color }) {
       </div>
       <div style={{ color: '#475569', fontSize: '12px' }}>
         {isNull
-          ? 'Aucun RDV qualifié'
-          : `${signes} signé${signes > 1 ? 's' : ''} / ${denominateur} qualifié${denominateur > 1 ? 's' : ''}`}
+          ? 'Aucun RDV visité'
+          : `${signes} signé${signes > 1 ? 's' : ''} / ${denominateur} visité${denominateur > 1 ? 's' : ''}`}
       </div>
     </div>
   )
@@ -217,9 +217,8 @@ export default function Stats() {
       {byTravaux.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
           {byTravaux.map(t => {
-            // Dénominateur par type = total - Hors cible - NRP - Absent - Passage admin - En attente
-            // Ici on n'a que total et signes dans byTravaux, donc taux simple sur total
-            const taux = t.total > 0 ? ((t.signes / t.total) * 100).toFixed(1) : 0
+            // Dénominateur = RDV visités : Devis signé + Refus + Refus de passage
+            const taux = (t.visitees || 0) > 0 ? ((t.signes / t.visitees) * 100).toFixed(1) : 0
             const c = tauxColor(parseFloat(taux))
             return (
               <div key={t.travaux} style={CARD}>
@@ -232,7 +231,7 @@ export default function Stats() {
                       {taux}%
                     </p>
                     <p style={{ color: '#64748B', fontSize: '12px', marginTop: '6px' }}>
-                      {t.signes} / {t.total} signés
+                      {t.signes} signé{t.signes > 1 ? 's' : ''} / {t.visitees || 0} visité{(t.visitees || 0) > 1 ? 's' : ''}
                     </p>
                   </div>
                   {t.rac_total > 0 && (
@@ -398,7 +397,7 @@ export default function Stats() {
                   </td>
                 </tr>
               ) : byDepartement.map((d, i) => {
-                const taux = d.total > 0 ? ((d.signes / d.total) * 100).toFixed(1) : '0.0'
+                const taux = (d.visitees || 0) > 0 ? ((d.signes / d.visitees) * 100).toFixed(1) : '0.0'
                 const c = tauxColor(parseFloat(taux))
                 return (
                   <tr key={d.departement} style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)' }}>
@@ -430,7 +429,7 @@ export default function Stats() {
               <div style={{ color: tauxColor(kpis.tauxConcretisation), fontSize: '24px', fontWeight: 800, marginTop: '4px' }}>
                 {kpis.tauxConcretisation}%
               </div>
-              <div style={{ color: '#475569', fontSize: '11px' }}>sur {kpis.totalVisites} RDV visités & ciblés</div>
+              <div style={{ color: '#475569', fontSize: '11px' }}>sur {kpis.totalVisites} RDV visités (Devis signé / Refus / Refus de passage)</div>
             </div>
             <div>
               <span style={{ color: '#64748B', fontSize: '12px' }}>Total RDV</span>
