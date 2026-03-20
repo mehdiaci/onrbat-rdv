@@ -312,16 +312,16 @@ export default function RdvList() {
           <table style={{ width: '100%', minWidth: '960px' }}>
             <thead>
               <tr>
-                {['Date', 'Heure', 'Client', 'Adresse', 'Téléphone', 'Travaux', 'Confirmation', 'Résultat', 'RAC', 'Actions'].map(h => (
+                {['Date', 'Heure', 'Client', 'Adresse', 'Téléphone', 'Travaux', 'Résultat', 'RAC', 'Actions'].map(h => (
                   <th key={h} style={TH}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={10} style={{ ...TD, textAlign: 'center', padding: '48px', color: '#475569' }}>Chargement…</td></tr>
+                <tr><td colSpan={9} style={{ ...TD, textAlign: 'center', padding: '48px', color: '#475569' }}>Chargement…</td></tr>
               ) : rdvs.length === 0 ? (
-                <tr><td colSpan={10} style={{ ...TD, textAlign: 'center', padding: '48px', color: '#475569' }}>Aucun rendez-vous trouvé</td></tr>
+                <tr><td colSpan={9} style={{ ...TD, textAlign: 'center', padding: '48px', color: '#475569' }}>Aucun rendez-vous trouvé</td></tr>
               ) : rdvs.map((rdv, i) => (
                 <tr key={rdv.id}
                   style={{ background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)' }}
@@ -337,11 +337,6 @@ export default function RdvList() {
                   <td style={{ ...TD, whiteSpace: 'nowrap' }}>{rdv.telephone || '—'}</td>
                   <td style={TD}>
                     <span style={{ color: '#00B4D8', fontWeight: 600, fontSize: '12px' }}>{rdv.travaux || '—'}</span>
-                  </td>
-                  <td style={TD}>
-                    <span style={{ color: rdv.statut_confirmation === 'Confirmé' ? '#22C55E' : '#F59E0B', fontSize: '12px', fontWeight: 500 }}>
-                      {rdv.statut_confirmation || '—'}
-                    </span>
                   </td>
                   <td style={TD}><Badge statut={rdv.statut_resultat} /></td>
                   <td style={TD}>
