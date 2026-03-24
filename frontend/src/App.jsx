@@ -3,13 +3,20 @@ import Navbar from './components/Navbar'
 import Dashboard from './components/Dashboard'
 import RdvList from './components/RdvList'
 import Stats from './components/Stats'
+import Charges from './components/Charges'
 
 export default function App() {
   const [page, setPage] = useState('dashboard')
+  const [chargesDate, setChargesDate] = useState('')
+
+  const navigateTo = (target, date = '') => {
+    if (target === 'charges') setChargesDate(date)
+    setPage(target)
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#0D1B2A' }}>
-      <Navbar currentPage={page} onNavigate={setPage} />
+      <Navbar currentPage={page} onNavigate={navigateTo} />
       <main style={{
         flex: 1,
         marginLeft: '240px',
@@ -18,7 +25,8 @@ export default function App() {
         overflowX: 'hidden'
       }}>
         {page === 'dashboard' && <Dashboard />}
-        {page === 'rdv'       && <RdvList />}
+        {page === 'rdv'       && <RdvList onNavigate={navigateTo} />}
+        {page === 'charges'   && <Charges initialDate={chargesDate} />}
         {page === 'stats'     && <Stats />}
       </main>
     </div>

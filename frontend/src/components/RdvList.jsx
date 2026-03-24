@@ -77,7 +77,7 @@ const SELECT_STYLE = {
   color: '#E2E8F0', fontSize: '13px', cursor: 'pointer', outline: 'none'
 }
 
-export default function RdvList() {
+export default function RdvList({ onNavigate }) {
   const [rdvs, setRdvs] = useState([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -390,7 +390,8 @@ export default function RdvList() {
         )}
       </div>
 
-      <RdvModal isOpen={modal.open} onClose={() => setModal({ open: false, rdv: null })} onSave={saveRdv} rdv={modal.rdv} />
+      <RdvModal isOpen={modal.open} onClose={() => setModal({ open: false, rdv: null })} onSave={saveRdv} rdv={modal.rdv}
+        onViewCharges={onNavigate ? (date) => onNavigate('charges', date) : null} />
 
       <ImportJsonModal
         isOpen={importJson}

@@ -10,6 +10,22 @@ const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 
 db.exec(`
+  CREATE TABLE IF NOT EXISTS charges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    type TEXT NOT NULL,
+    fournisseur TEXT,
+    ville TEXT,
+    montant REAL NOT NULL,
+    litres REAL,
+    prix_litre REAL,
+    kilometrage REAL,
+    notes TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+db.exec(`
   CREATE TABLE IF NOT EXISTS rdv (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT,

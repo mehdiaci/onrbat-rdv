@@ -44,7 +44,7 @@ function Field({ label, children }) {
   )
 }
 
-export default function RdvModal({ isOpen, onClose, onSave, rdv }) {
+export default function RdvModal({ isOpen, onClose, onSave, rdv, onViewCharges }) {
   const [form, setForm] = useState(EMPTY)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -188,6 +188,16 @@ export default function RdvModal({ isOpen, onClose, onSave, rdv }) {
                 placeholder="2 500" min="0" step="100" style={INPUT_STYLE} />
             </Field>
           </div>
+
+          {/* Lien charges du jour */}
+          {onViewCharges && form.date && (
+            <div style={{ marginBottom: '12px' }}>
+              <button type="button" onClick={() => { onClose(); onViewCharges(form.date) }}
+                style={{ background: 'transparent', border: 'none', color: '#00B4D8', fontSize: '12px', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                💶 Voir les charges de ce jour ({form.date.split('-').reverse().join('/')})
+              </button>
+            </div>
+          )}
 
           {/* Notes */}
           <div style={{ marginBottom: '28px' }}>

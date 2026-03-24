@@ -1,8 +1,9 @@
-import { LayoutDashboard, CalendarDays, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, BarChart3, Euro } from 'lucide-react'
 
 const navItems = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { id: 'rdv',       label: 'Rendez-vous',     icon: CalendarDays },
+  { id: 'charges',   label: 'Charges',          icon: Euro },
   { id: 'stats',     label: 'Statistiques',    icon: BarChart3 },
 ]
 

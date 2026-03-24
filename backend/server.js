@@ -17,8 +17,9 @@ const upload = multer({
   }
 });
 
-const rdvRoutes = require('./routes/rdv');
-const statsRoutes = require('./routes/stats');
+const rdvRoutes     = require('./routes/rdv');
+const statsRoutes   = require('./routes/stats');
+const chargesRoutes = require('./routes/charges');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,8 +30,9 @@ app.use(cors({ origin: isProd ? false : 'http://localhost:5173' }));
 app.use(express.json({ limit: '20mb' }));
 
 // Routes
-app.use('/api/rdv', rdvRoutes);
-app.use('/api/stats', statsRoutes);
+app.use('/api/rdv',     rdvRoutes);
+app.use('/api/stats',   statsRoutes);
+app.use('/api/charges', chargesRoutes);
 
 // POST /api/import
 app.post('/api/import', (req, res) => {
