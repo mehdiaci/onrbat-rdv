@@ -142,7 +142,7 @@ function ChargeModal({ charge, onClose, onSaved }) {
         kilometrage: form.kilometrage ? parseFloat(form.kilometrage) : null,
         notes: form.notes || null
       }
-      const url    = charge ? `${API_BASE}/charges/${charge.id}` : `${API_BASE}/charges`
+      const url    = charge ? `${API_BASE}/api/charges/${charge.id}` : `${API_BASE}/api/charges`
       const method = charge ? 'PUT' : 'POST'
       const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       if (!r.ok) throw new Error((await r.json()).error)
@@ -221,7 +221,7 @@ function ImportModal({ onClose, onImported }) {
     setLoading(true)
     try {
       const data = JSON.parse(text)
-      const r = await fetch(`${API_BASE}/charges/import`, {
+      const r = await fetch(`${API_BASE}/api/charges/import`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
       })
       const j = await r.json()
@@ -488,7 +488,7 @@ export default function Charges({ initialDate }) {
       if (filters.type)     p.set('type',        filters.type)
       p.set('limit',  PAGE_SIZE)
       p.set('offset', (page - 1) * PAGE_SIZE)
-      const r = await fetch(`${API_BASE}/charges?${p}`)
+      const r = await fetch(`${API_BASE}/api/charges?${p}`)
       const d = await r.json()
       setCharges(d.charges || [])
       setTotal(d.total   || 0)
@@ -500,7 +500,7 @@ export default function Charges({ initialDate }) {
     if (statsPeriode !== 'custom') p.set('periode', statsPeriode)
     if (statsDateFrom) p.set('date_debut', statsDateFrom)
     if (statsDateTo)   p.set('date_fin',   statsDateTo)
-    const r = await fetch(`${API_BASE}/charges/stats?${p}`)
+    const r = await fetch(`${API_BASE}/api/charges/stats?${p}`)
     const d = await r.json()
     setStats(d)
   }, [statsPeriode, statsDateFrom, statsDateTo])
@@ -510,7 +510,7 @@ export default function Charges({ initialDate }) {
 
   const deleteCharge = async (id) => {
     if (!confirm('Supprimer cette charge ?')) return
-    await fetch(`${API_BASE}/charges/${id}`, { method: 'DELETE' })
+    await fetch(`${API_BASE}/api/charges/${id}`, { method: 'DELETE' })
     fetchCharges()
   }
 
